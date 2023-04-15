@@ -1,3 +1,4 @@
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/3LGf16Zh)
 # ECE 208 Homework 2: Three-Way Sequence Alignment and Inferring Gap Penalty
 
 ## Part 1: Three-way sequence alignment
