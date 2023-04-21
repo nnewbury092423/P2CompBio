@@ -23,7 +23,7 @@ def compute_gap_penalty(indel_rate,P):
 
     #gap
 
-    #print("here")
+    print("here")
     #gap = 15 # TODO: replace with your way to compute gap penalty
     return gap
 
