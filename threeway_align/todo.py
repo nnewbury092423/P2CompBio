@@ -12,18 +12,21 @@ def compute_gap_penalty(indel_rate,P):
    
     #import pdb; pdb.set_trace()
     #indel_rate, P
-    numsum= 0
+    diagsum = 0
     #import pdb; pdb.set_trace()
     #othersums = 0     
-    
+    totsum = 0 
     for key in P:
-        numsum = numsum + P[key][key]
-    gap = log2(indel_rate *(1-numsum))
+        diagsum = diagsum + P[key][key]
+        for key2 in P:
+            totsum = totsum + P[key][key2]
+
+    gap = log2(indel_rate *(1-diagsum)/totsum)
 
 
     #gap
 
-    print("here")
+    #print("here")
     #gap = 15 # TODO: replace with your way to compute gap penalty
     return gap
 
@@ -44,63 +47,48 @@ def threeway_align(s1, s2, s3, B, gap, VERBOSE=True):
     S = [[[(0,None) for k in range(len(s3)+1)] for j in range(len(s2)+1)] for i in range(len(s1)+1)]
 
     S[0][0][0] = (0, None)        # corner
-    #print(type(S))
-    #print(B)
-    # fill in cube axes
+    # fill in cube axes TODO:
     if VERBOSE:
         print("Filling cube axes", file=stderr)
-    
+    # For each axis dimension
     for i in range(1, len(s1)+1): # s1 axis
 
-        #S[i][0][0][0] = S[i-1][0][0][0] + 2*gap
-        #S[i][0][0][1] = [1,0,0]
-
         S[i][0][0] = (S[i-1][0][0][0] + 2*gap, [1,0,0])
-
-        #Shifted by one
-        #print(B)# TODO: replace with your code
     for j in range(1, len(s2)+1): # s2 axis
-        #S[0][j][0][0] =  S[0][j-1][0][0] + 2*gap 
-        #S[0][j][0][1] = [0,1,0]
-        S[0][j][0] = (S[0][j-1][0][0] + 2*gap , [0,1,0])
 
-        # TODO: replace with your code
+        S[0][j][0] = (S[0][j-1][0][0] + 2*gap , [0,1,0])
+  
     for k in range(1, len(s3)+1): # s3 axis
-        #S[0][0][k][0] = S[0][0][k-1][0] + 2*gap # TODO: replace with your code
-        #S[0][0][k][1] = [0,0,1]
         S[0][0][k] = (S[0][0][k-1][0] + 2*gap,[0,0,1])
 
     # fill in cube faces
     if VERBOSE:
         print("Filling cube faces", file=stderr)
-    # only 3 faces
+    # fill in the first 3 faces.
     # TODO: add your code here
-    # fill 
-
     for i in range(1, len(s1)+1):
         for j in range(1, len(s2)+1):
-            #import pdb; pdb.set_trace()
-            option = [S[i-1][j-1][0][0] + B[s1[i-1]][s2[j-1]], S[i][j-1][0][0] + 2*gap, S[i-1][j][0][0] + 2*gap]
-            #S[i][j][0][0] = max(option)
+            # create list of previous subproblems to look at
+            option =[S[i-1][j-1][0][0] + B[s1[i-1]][s2[j-1]] + 2*gap, S[i][j-1][0][0] + 2*gap, S[i-1][j][0][0] + 2*gap]
+
             max_index = max(enumerate(option), key=lambda x: x[1])[0]
-            
+            # arrow based option chosen
             if max_index == 0: 
                 arrow = [1, 1, 0]
             elif max_index == 1:
                 arrow = [0, 1, 0]
             elif max_index == 2:
                 arrow = [1,0, 0]
-            #S[i][j][0][1] = arrow 
             S[i][j][0] = (max(option), arrow)
 
 
 
-
+    # Same as above
     for i in range(1, len(s1)+1):
         for k in range(1, len(s3)+1):
             
-            option = [S[i-1][0][k-1][0] + B[s1[i-1]][s3[k-1]], S[i][0][k-1][0] + 2*gap, S[i-1][0][k][0] + 2*gap]
-            #S[i][0][k][0] = max(option)
+            option = [S[i-1][0][k-1][0] + B[s1[i-1]][s3[k-1]] + 2*gap, S[i][0][k-1][0] + 2*gap, S[i-1][0][k][0] + 2*gap]
+
             max_index = max(enumerate(option), key=lambda x: x[1])[0]
             
             if max_index == 0: 
@@ -110,14 +98,13 @@ def threeway_align(s1, s2, s3, B, gap, VERBOSE=True):
             elif max_index == 2:
                 arrow = [1,0,0]
 
-            #S[i][0][k][1] = arrow 
             S[i][0][k] = (max(option), arrow)
-
+    # Same as above
     for j in range(1, len(s2)+1):
         for k in range(1, len(s3)+1):
 
-            option = [S[0][j-1][k-1][0] + B[s2[j-1]][s3[k-1]], S[0][j][k-1][0] + 2*gap, S[0][j-1][k][0] + 2*gap]
-            #S[0][j][k][0] = max(option)
+            option = [S[0][j-1][k-1][0] + B[s2[j-1]][s3[k-1]] + 2*gap, S[0][j][k-1][0] + 2*gap, S[0][j-1][k][0] + 2*gap]
+
             max_index = max(enumerate(option), key=lambda x: x[1])[0]
 
             if max_index == 0: 
@@ -127,7 +114,7 @@ def threeway_align(s1, s2, s3, B, gap, VERBOSE=True):
             elif max_index == 2:
                 arrow = [0,1,0]
 
-            #S[0][j][k][1] = arrow 
+
             S[0][j][k] = (max(option), arrow)
 
 
